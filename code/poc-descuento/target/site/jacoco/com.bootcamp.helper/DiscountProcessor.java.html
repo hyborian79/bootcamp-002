@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DiscountProcessor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">poc-descuento</a> &gt; <a href="index.source.html" class="el_package">com.bootcamp.helper</a> &gt; <span class="el_source">DiscountProcessor.java</span></div><h1>DiscountProcessor.java</h1><pre class="source lang-java linenums">package com.bootcamp.helper;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+<span class="fc" id="L6">public class DiscountProcessor {</span>
+
+<span class="fc" id="L8">    private static final BigDecimal ONE_HUNDRED =</span>
+            new BigDecimal(&quot;100&quot;);
+
+<span class="fc" id="L11">    private static final BigDecimal ZERO =</span>
+            new BigDecimal(&quot;0.00&quot;);
+
+    public BigDecimal apply(Product product, Discount discount) {
+<span class="fc" id="L15">        validateRequiredValues(product, discount);</span>
+<span class="fc" id="L16">        validateProduct(product);</span>
+<span class="fc" id="L17">        validateDiscount(discount);</span>
+
+<span class="fc bfc" id="L19" title="All 2 branches covered.">        if (!product.id().equals(discount.productId())) {</span>
+<span class="fc" id="L20">            return money(product.price());</span>
+        }
+
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        BigDecimal finalPrice = switch (discount.type()) {</span>
+<span class="fc" id="L24">            case PERCENTAGE -&gt; applyPercentageDiscount(</span>
+<span class="fc" id="L25">                    product.price(),</span>
+<span class="fc" id="L26">                    discount.value()</span>
+            );
+<span class="fc" id="L28">            case FIXED_AMOUNT -&gt; product.price()</span>
+<span class="fc" id="L29">                    .subtract(discount.value());</span>
+        };
+
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (finalPrice.compareTo(BigDecimal.ZERO) &lt; 0) {</span>
+<span class="fc" id="L33">            return ZERO;</span>
+        }
+
+<span class="fc" id="L36">        return money(finalPrice);</span>
+    }
+
+    private BigDecimal applyPercentageDiscount(
+            BigDecimal price,
+            BigDecimal percentage
+    ) {
+<span class="fc" id="L43">        BigDecimal discountAmount = price</span>
+<span class="fc" id="L44">                .multiply(percentage)</span>
+<span class="fc" id="L45">                .divide(ONE_HUNDRED, 10, RoundingMode.HALF_UP);</span>
+
+<span class="fc" id="L47">        return price.subtract(discountAmount);</span>
+    }
+
+    private void validateRequiredValues(
+            Product product,
+            Discount discount
+    ) {
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        if (product == null) {</span>
+<span class="fc" id="L55">            throw new IllegalArgumentException(</span>
+                    &quot;Product cannot be null&quot;
+            );
+        }
+
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (discount == null) {</span>
+<span class="fc" id="L61">            throw new IllegalArgumentException(</span>
+                    &quot;Discount cannot be null&quot;
+            );
+        }
+
+<span class="pc bpc" id="L66" title="2 of 4 branches missed.">        if (product.id() == null || product.price() == null) {</span>
+<span class="nc" id="L67">            throw new IllegalArgumentException(</span>
+                    &quot;Product fields cannot be null&quot;
+            );
+        }
+
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (discount.productId() == null</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">                || discount.type() == null</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">                || discount.value() == null) {</span>
+<span class="nc" id="L75">            throw new IllegalArgumentException(</span>
+                    &quot;Discount fields cannot be null&quot;
+            );
+        }
+<span class="fc" id="L79">    }</span>
+
+    private void validateProduct(Product product) {
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        if (product.price().compareTo(BigDecimal.ZERO) &lt; 0) {</span>
+<span class="fc" id="L83">            throw new IllegalArgumentException(</span>
+                    &quot;Product price cannot be negative&quot;
+            );
+        }
+<span class="fc" id="L87">    }</span>
+
+    private void validateDiscount(Discount discount) {
+<span class="pc bpc" id="L90" title="1 of 3 branches missed.">        switch (discount.type()) {</span>
+<span class="fc" id="L91">            case PERCENTAGE -&gt; validatePercentage(discount.value());</span>
+<span class="fc" id="L92">            case FIXED_AMOUNT -&gt; validateFixedAmount(discount.value());</span>
+        }
+<span class="fc" id="L94">    }</span>
+
+    private void validatePercentage(BigDecimal percentage) {
+<span class="fc" id="L97">        boolean isNegative =</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">                percentage.compareTo(BigDecimal.ZERO) &lt; 0;</span>
+
+<span class="fc" id="L100">        boolean exceedsMaximum =</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">                percentage.compareTo(ONE_HUNDRED) &gt; 0;</span>
+
+<span class="fc bfc" id="L103" title="All 4 branches covered.">        if (isNegative || exceedsMaximum) {</span>
+<span class="fc" id="L104">            throw new IllegalArgumentException(</span>
+                    &quot;Percentage discount must be between 0 and 100&quot;
+            );
+        }
+<span class="fc" id="L108">    }</span>
+
+    private void validateFixedAmount(BigDecimal amount) {
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        if (amount.compareTo(BigDecimal.ZERO) &lt; 0) {</span>
+<span class="fc" id="L112">            throw new IllegalArgumentException(</span>
+                    &quot;Fixed discount cannot be negative&quot;
+            );
+        }
+<span class="fc" id="L116">    }</span>
+
+    private BigDecimal money(BigDecimal value) {
+<span class="fc" id="L119">        return value.setScale(2, RoundingMode.HALF_UP);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
