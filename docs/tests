@@ -1,0 +1,26 @@
+1. Reglas de negocio asumidas
+Un producto tiene un identificador y un precio.
+El descuento solamente se aplica cuando corresponde al identificador del producto.
+Se admiten descuentos:
+Porcentuales.
+De monto fijo.
+El precio final nunca puede ser negativo.
+Los descuentos porcentuales deben estar entre 0 y 100.
+Los descuentos fijos no pueden ser negativos.
+Los importes se redondean a dos decimales usando HALF_UP.
+Los valores nulos o precios inválidos generan una excepción.
+2. Escenarios de prueba
+Escenario	Precio	Descuento	Resultado esperado
+Sin descuento	100.00	0 %	100.00
+Descuento porcentual	100.00	20 %	80.00
+Descuento fijo	100.00	25.00	75.00
+Descuento del 100 %	100.00	100 %	0.00
+Descuento fijo mayor que el precio	50.00	70.00	0.00
+Descuento para otro producto	100.00	20 %	100.00
+Resultado con decimales	99.99	15 %	84.99
+Porcentaje negativo	100.00	-10 %	Excepción
+Porcentaje mayor a 100	100.00	101 %	Excepción
+Descuento fijo negativo	100.00	-5.00	Excepción
+Precio negativo	-10.00	20 %	Excepción
+Producto nulo	—	20 %	Excepción
+Descuento nulo	100.00	—	Excepción
